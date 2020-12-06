@@ -1,0 +1,272 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>hadoop | 翼展之内 便是天下</title><meta name="keywords" content="hadoop,研究生课程学习"><meta name="author" content="lei"><meta name="copyright" content="lei"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><meta name="description" content="做作业安装及配置虚拟机安装centos6进入vmware安装，步骤为https:&#x2F;&#x2F;www.cnblogs.com&#x2F;bwlluck&#x2F;p&#x2F;6711183.html 最后安装vmware tools，如果遇到，用户不在sudoer组里或是权限不够，就su root，切换root用户，在执行安装脚本； 配置虚拟机先拍个开始快照（关机快照只会保存硬盘状态，开机快照还会保存内存状态，故一定要关机快照） 先关">
+<meta property="og:type" content="article">
+<meta property="og:title" content="hadoop">
+<meta property="og:url" content="http://leiyx.github.io/2020/12/02/hadoop/index.html">
+<meta property="og:site_name" content="翼展之内 便是天下">
+<meta property="og:description" content="做作业安装及配置虚拟机安装centos6进入vmware安装，步骤为https:&#x2F;&#x2F;www.cnblogs.com&#x2F;bwlluck&#x2F;p&#x2F;6711183.html 最后安装vmware tools，如果遇到，用户不在sudoer组里或是权限不够，就su root，切换root用户，在执行安装脚本； 配置虚拟机先拍个开始快照（关机快照只会保存硬盘状态，开机快照还会保存内存状态，故一定要关机快照） 先关">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/img/default.jpg">
+<meta property="article:published_time" content="2020-12-02T02:13:23.000Z">
+<meta property="article:modified_time" content="2020-12-05T05:41:17.347Z">
+<meta property="article:author" content="lei">
+<meta property="article:tag" content="hadoop">
+<meta property="article:tag" content="研究生课程学习">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/img/default.jpg"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://leiyx.github.io/2020/12/02/hadoop/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  ClickShowText: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    jQuery: 'https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js',
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+    },
+    fancybox: {
+      js: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isanchor: false
+};
+
+var saveToLocal = {
+  set: function setWithExpiry(key, value, ttl) {
+    const now = new Date()
+    const expiryDay = ttl * 86400000
+    const item = {
+      value: value,
+      expiry: now.getTime() + expiryDay,
+    }
+    localStorage.setItem(key, JSON.stringify(item))
+  },
+
+  get: function getWithExpiry(key) {
+    const itemStr = localStorage.getItem(key)
+
+    if (!itemStr) {
+      return undefined
+    }
+    const item = JSON.parse(itemStr)
+    const now = new Date()
+
+    if (now.getTime() > item.expiry) {
+      localStorage.removeItem(key)
+      return undefined
+    }
+    return item.value
+  }
+}
+
+// https://stackoverflow.com/questions/16839698/jquery-getscript-alternative-in-native-javascript
+const getScript = url => new Promise((resolve, reject) => {
+  const script = document.createElement('script')
+  script.src = url
+  script.async = true
+  script.onerror = reject
+  script.onload = script.onreadystatechange = function() {
+    const loadState = this.readyState
+    if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+    script.onload = script.onreadystatechange = null
+    resolve()
+  }
+  document.head.appendChild(script)
+})</script><script id="config_change">var GLOBAL_CONFIG_SITE = { 
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2020-12-05 13:41:17'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(function () {  window.activateDarkMode = function () {
+    document.documentElement.setAttribute('data-theme', 'dark')
+    if (document.querySelector('meta[name="theme-color"]') !== null) {
+      document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+    }
+  }
+  window.activateLightMode = function () {
+    document.documentElement.setAttribute('data-theme', 'light')
+   if (document.querySelector('meta[name="theme-color"]') !== null) {
+      document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+    }
+  }
+  const autoChangeMode = 'false'
+  const t = saveToLocal.get('theme')
+  if (autoChangeMode === '1') {
+    const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
+    const isLightMode = window.matchMedia('(prefers-color-scheme: light)').matches
+    const isNotSpecified = window.matchMedia('(prefers-color-scheme: no-preference)').matches
+    const hasNoSupport = !isDarkMode && !isLightMode && !isNotSpecified
+    if (t === undefined) {
+      if (isLightMode) activateLightMode()
+      else if (isDarkMode) activateDarkMode()
+      else if (isNotSpecified || hasNoSupport) {
+        const now = new Date()
+        const hour = now.getHours()
+        const isNight = hour <= 6 || hour >= 18
+        isNight ? activateDarkMode() : activateLightMode()
+      }
+      window.matchMedia('(prefers-color-scheme: dark)').addListener(function (e) {
+        if (saveToLocal.get('theme') === undefined) {
+          e.matches ? activateDarkMode() : activateLightMode()
+        }
+      })
+    } else if (t === 'light') activateLightMode()
+    else activateDarkMode()
+  } else if (autoChangeMode === '2') {
+    const now = new Date()
+    const hour = now.getHours()
+    const isNight = hour <= 6 || hour >= 18
+    if (t === undefined) isNight ? activateDarkMode() : activateLightMode()
+    else if (t === 'light') activateLightMode()
+    else activateDarkMode()
+  } else {
+    if (t === 'dark') activateDarkMode()
+    else if (t === 'light') activateLightMode()
+  }const asideStatus = saveToLocal.get('aside-status')
+if (asideStatus !== undefined) {
+   if (asideStatus === 'hide') {
+     document.documentElement.classList.add('hide-aside')
+   } else {
+     document.documentElement.classList.remove('hide-aside')
+   }
+}})()</script><meta name="generator" content="Hexo 5.2.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="author-avatar"><img class="avatar-img" src="/null" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data"><div class="data-item is-center"><div class="data-item-link"><a href="/archives/"><div class="headline">文章</div><div class="length-num">4</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/tags/"><div class="headline">标签</div><div class="length-num">10</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/categories/"><div class="headline">分类</div><div class="length-num">5</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div></div></div></div><div id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/img/default.jpg)"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">翼展之内 便是天下</a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">hadoop</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2020-12-02T02:13:23.000Z" title="发表于 2020-12-02 10:13:23">2020-12-02</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2020-12-05T05:41:17.347Z" title="更新于 2020-12-05 13:41:17">2020-12-05</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E4%BA%91%E8%AE%A1%E7%AE%97/">云计算</a></span></div><div class="meta-secondline"> <span class="post-meta-separator">|</span><span class="post-meta-pv-cv"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="做作业"><a href="#做作业" class="headerlink" title="做作业"></a>做作业</h1><h2 id="安装及配置虚拟机"><a href="#安装及配置虚拟机" class="headerlink" title="安装及配置虚拟机"></a>安装及配置虚拟机</h2><h3 id="安装centos6"><a href="#安装centos6" class="headerlink" title="安装centos6"></a>安装centos6</h3><p>进入vmware安装，步骤为<a target="_blank" rel="noopener" href="https://www.cnblogs.com/bwlluck/p/6711183.html">https://www.cnblogs.com/bwlluck/p/6711183.html</a></p>
+<p>最后安装vmware tools，如果遇到，用户不在sudoer组里或是权限不够，就su root，切换root用户，在执行安装脚本；</p>
+<h3 id="配置虚拟机"><a href="#配置虚拟机" class="headerlink" title="配置虚拟机"></a>配置虚拟机</h3><p>先拍个开始快照（关机快照只会保存硬盘状态，开机快照还会保存内存状态，故一定要关机快照）</p>
+<p>先关掉防火墙，service iptables status或chkconfig –list iptables查看是否关掉；</p>
+<p>创建用户，更改组与权限</p>
+<p>更改/etc/hosts文件</p>
+<p>设置静态IP，若网络不正确，则没有那个文件。<a target="_blank" rel="noopener" href="https://www.jb51.net/article/173586.htm">https://www.jb51.net/article/173586.htm</a></p>
+<p>改主机名，与hosts文件对应；</p>
+<p>关机，拍快照；</p>
+<p>克隆多台机器，并改。几步</p>
+<h3 id="安装hadoop、java，搭建伪分布式"><a href="#安装hadoop、java，搭建伪分布式" class="headerlink" title="安装hadoop、java，搭建伪分布式"></a>安装hadoop、java，搭建伪分布式</h3><p>xshell远程连接，关闭防火墙，service sshd start，sudo yum install openssh-server；</p>
+<p>使用xftp传输jdk和hadoop安装包，到/opt/software</p>
+<p>先删除之前的java包，rpm -qa | grep java，rpm -qa |grep java |xargs sudo rpm -e –nodeps；</p>
+<p>解压，tar -zxvf jdk-8u144-linux-x64.tar.gz -C /opt/module/；z gz ，x解压，v信息，f指定文件。 -C 输出目录</p>
+<p>hadoop解压同理；ll？？？</p>
+<p>配置环境变量，</p>
+<p>sudo vim /etc/profile</p>
+<p>#JAVA_HOME<br>export JAVA_HOME=/opt/module/jdk1.8.0_14<br>export PATH=$PATH:$JAVA_HOME/bin</p>
+<p>#HADOOP_HOME<br>export HADOOP_HOME=/opt/module/hadoop-2.7.2<br>export PATH=$PATH:$HADOOP_HOME/bin:$HADOOP_HOME/sbin</p>
+<p>source /etc/profile</p>
+<p>java -version</p>
+<p>echo $JAVA_HOME ,hadoop version测试；ll</p>
+<p>分析 hadoop结构，share中hadoop里面才是重要的东西；</p>
+<h4 id="配置本地模式"><a href="#配置本地模式" class="headerlink" title="配置本地模式"></a>配置本地模式</h4><p>按文档教程</p>
+<h4 id="配置伪分布式"><a href="#配置伪分布式" class="headerlink" title="配置伪分布式"></a>配置伪分布式</h4><p>启动命令：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"> bin/hdfs namenode -format//第一次使用需格式化</span><br><span class="line">sbin/hadoop-daemon.sh start namenode</span><br><span class="line">sbin/hadoop-daemon.sh start datanode</span><br><span class="line">sbin/yarn-daemon.sh start resourcemanager</span><br><span class="line">sbin/yarn-daemon.sh start nodemanager</span><br><span class="line">jps//显式五个，一个一个指定启动；当然也可以使用脚本全部一次启动或停止；</span><br></pre></td></tr></table></figure>
+
+<p>hadoop101：50070（8088/9000）</p>
+<p>在hdfs和yarn上跑一下程序；</p>
+<ul>
+<li>将输入文件夹上传到云上，hadoop fs -put wcinput /</li>
+<li>hadoop jar share/hadoop/mapreduce/hadoop-mapreduce-examples-2.7.2.jar  wordcount /wcinput /wcoutput      //注意输出文件夹必不存在</li>
+<li>查看结果；hadoop fs -cat /wcoutput/*</li>
+</ul>
+<h4 id="配置完全分布式"><a href="#配置完全分布式" class="headerlink" title="配置完全分布式"></a>配置完全分布式</h4><p>准备三台虚拟机，并做好虚拟机配置；</p>
+<p>如何远程拷贝？一台一台安装hadoop java太麻烦了，</p>
+<p>cp -r source destination</p>
+<p>#远程吧hadoop101上的/opt/module拷贝到其余主机相同位置；</p>
+<p>scp -r hadoop101:/opt/module/hadoop-2.7.2 (source) hadoop102:/opt/module(destination)</p>
+<p>//但是权限和时间等没有拷贝，不是完成拷贝；</p>
+<p>//完全拷贝是<strong>rsync</strong>；只能一个远程一个本地地址；这个更好</p>
+<p>rsync -av hadoop101:/opt/module/hadoop-2.7.2 /opt/module</p>
+<p>集群分发脚本，xsync；看教程文档；</p>
+<p>~：sudo cp xsync /bin，这样就可以在任意地方执行它了，因为bin在环境变量中</p>
+<p>最后hadoop version，Java -verison，检测是否快速部署成功；</p>
+<p>集群部署规划，三大件xml、env.sh加一个core.xml配置；</p>
+<p>namenode clusterID：CID-abcb6d4d-9706-4fab-ab9a-fd48e107c4b0</p>
+<p>datanode clusterID：CID-0ac83008-9026-487b-a1fb-3635d81d2d7e</p>
+<p>而且你的三个节点的name和datanodeclusterID必须一致，我这一辈子应该不会格式化namenode了；</p>
+<p>为什么显示有问题？<a target="_blank" rel="noopener" href="https://blog.csdn.net/hanzl1/article/details/79026454?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.control&amp;depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.control">https://blog.csdn.net/hanzl1/article/details/79026454?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.control&amp;depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.control</a></p>
+<p>相互ping一下；</p>
+<p>ssh免密登录配置；维基百科搜索ssh，有些资料；</p>
+<p>ssh-keygen -t rsa; ssh-copy-id 主机名；</p>
+<p>ssh只是单向的连接；搞下ssh，xsync分发.ssh文件夹；分发slave文件</p>
+<p>注意在哪儿启动dfs和yarn（根据你的集群部署），看日志；</p>
+<p><a target="_blank" rel="noopener" href="http://hadoop102:50070/dfshealth.html#tab-datanode">http://hadoop102:50070/dfshealth.html#tab-datanode</a></p>
+<p><a target="_blank" rel="noopener" href="http://hadoop103:8088/cluster/nodes">http://hadoop103:8088/cluster/nodes</a></p>
+<p>P10最后，跑个程序验证一下；</p>
+<p>配置<strong>历史服务器和日志聚集</strong>；添加配置文件，见文档；</p>
+<p>mr-jobhistory-daemon.sh  start historyserver；启动历史服务器；相关命令见文档；</p>
+<p>P12又跑wc程序；看网页上的日志聚集，这样来分析错误信息；</p>
+<p>时间同步：文档一二步之间，service ntpd status查看是否运行，必须在关闭的时候改；service ntpd stop；chkconfig ntpd off；chkconfig –list ntpd；剩下与文档同；</p>
+<h2 id="配置hdfs"><a href="#配置hdfs" class="headerlink" title="配置hdfs"></a>配置hdfs</h2><p>hdfs简介，优缺点，架构等，通过多副本机制实现高容错性；处理文件并不是以文件为的单位，而是以块为单位；</p>
+<p>hdfs的shell操作；</p>
+<p>上传：hdfs dfs -put etc /；hadoop fs -put etc /都行；等等命令很多；<strong>前缀加基本命令</strong>；</p>
+<h4 id="hdfs-hdfs"><a href="#hdfs-hdfs" class="headerlink" title="hdfs-hdfs"></a>hdfs-hdfs</h4><ul>
+<li>hadoop fs -cp /etc /etc2；</li>
+<li>hadoop fs -rm -r /etc2;</li>
+<li>hadoop fs -df -h;</li>
+<li>hadoop fs -du -h /;disk usage;</li>
+</ul>
+<h4 id="本地-gt-hdfs"><a href="#本地-gt-hdfs" class="headerlink" title="本地-&gt;hdfs"></a>本地-&gt;hdfs</h4><ul>
+<li>put</li>
+<li>copyFromLocal与上同</li>
+<li>moveFromLocal</li>
+<li>appendToFile;hadoop fs -appendToFile 本地文件  hdfs中文件路径</li>
+</ul>
+<h4 id="hdfs-gt-本地"><a href="#hdfs-gt-本地" class="headerlink" title="hdfs-&gt;本地"></a>hdfs-&gt;本地</h4><ul>
+<li>get;hadoop fs -get /output ./                ;/output 下载到<strong>当前目录</strong></li>
+<li>getmerge，hadoop fs -getmerge  /text/* merge.txt;</li>
+<li>copyToLocal，与get同；</li>
+</ul>
+<p>hadoop fs -tail -f hdfs中文件；//还有其他一些常规命令；</p>
+<p>安装idea、配置maven</p>
+<p>安装破解idea，以及安装java等在windows电脑上；</p>
+<p>点击configure，设置maven和project等；？？如何设置；</p>
+<p>安装win10hadoop，配置环境变量；winutils检测；</p>
+<h3 id="hadoop-API，在idea中操作"><a href="#hadoop-API，在idea中操作" class="headerlink" title="hadoop API，在idea中操作"></a>hadoop API，在idea中操作</h3><p>1.创建项目，导入依赖；</p>
+<p>2.编程；P20API；环境验证成功，但是其余未搞；（注意问题2个，补全有多个；选hadoop的，按照重载形式来写）；学习怎么写hdfsAPI？@before ，@after什么意思？？？拆分@Test的代码，跑的顺序就是@before-&gt;@Test-&gt;@after;</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">基本步骤：</span><br><span class="line">1.获取一个HDFS的封装对象；</span><br><span class="line">2.使用这个对象操作文件系统；比如fileSystem.copyToLocal（看提示写）；new Path,\为根目录，d:\\</span><br><span class="line">3.关闭文件系统；hdfs不支持并发写入；</span><br></pre></td></tr></table></figure>
+
+<p>hdfs读、写流程等等；三台虚拟机与我们主机在一个NAT网络中，私有IP；</p>
+<p>maven回顾，解决jar包哪下和依赖问题；还有其他很多很多比如NN、SNN、DN、HADOOP HA等等？？？</p>
+<h2 id="mapreduce编程，导入jar包"><a href="#mapreduce编程，导入jar包" class="headerlink" title="mapreduce编程，导入jar包"></a>mapreduce编程，导入jar包</h2><p>mapreduce是一个编程框架；</p>
+<p>mapreduce编程案例</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">1.新建maven工程，导入依赖，import changes，在&#x2F;src&#x2F;main&#x2F;resources下新建log4j.properties，并粘贴其内容；</span><br><span class="line">2.在&#x2F;src&#x2F;main&#x2F;java中新建package，点包右键新建java class，三个用来分别写mapp，reduce，driver的；</span><br><span class="line">3.mapper写法，输入键值对，输出键值对为四个输入参数；（快捷键重写一个方法，ctrl+o，需在指定范围内）</span><br><span class="line">4.reduce写法，context是什么？？？？一些内置类型变了名字，job和context基本相同，一条贯穿过程的线；context，键值对，传给这个mr框架的；</span><br><span class="line">5.driver</span><br><span class="line">6.打包，本地搞好以后，maven project，lifecycle，package双击 ，左边导航窗口出现一个target文件夹，将jar包copy，</span><br><span class="line">7.在集群上运行，hadoop jar 1.jar com.atguigu.wordcount.WcDriver &#x2F;hello.txt &#x2F;ans；jar包名，主类名，WcDriver右键copy reference；</span><br><span class="line">8.ok了？</span><br></pre></td></tr></table></figure>
+
+
+
+<p>一万个问题；</p>
+<p>更改程序，执行</p>
+<p>如何写脚本？？？</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">lei</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://leiyx.github.io/2020/12/02/hadoop/">http://leiyx.github.io/2020/12/02/hadoop/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://leiyx.github.io" target="_blank">翼展之内 便是天下</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/hadoop/">hadoop</a><a class="post-meta__tags" href="/tags/%E7%A0%94%E7%A9%B6%E7%94%9F%E8%AF%BE%E7%A8%8B%E5%AD%A6%E4%B9%A0/">研究生课程学习</a></div><div class="post_share"><div class="social-share" data-image="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/img/default.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/2020/01/07/Cpp%E8%BF%90%E7%AE%97%E7%AC%A6%E9%87%8D%E8%BD%BD/"><img class="next-cover" src="https://gitee.com/yuxiaol/img/raw/master/%E6%89%93%E5%AD%97%E7%9A%84%E8%83%8C%E6%99%AF%E5%9B%BE.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">C++运算符重载</div></div></a></div></nav></div><div class="aside_content" id="aside_content"><div class="card-widget card-info"><div class="card-content"><div class="card-info-avatar is-center"><img class="avatar-img" src="/null" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/><div class="author-info__name">lei</div><div class="author-info__description">与其感慨路难行，不如马上出发</div></div><div class="card-info-data"><div class="card-info-data-item is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">4</div></a></div><div class="card-info-data-item is-center"><a href="/tags/"><div class="headline">标签</div><div class="length-num">10</div></a></div><div class="card-info-data-item is-center"><a href="/categories/"><div class="headline">分类</div><div class="length-num">5</div></a></div></div><a class="button--animated" id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="/770567756@qq.com" target="_blank" title="Email"><i class="fas fa-envelope"></i></a></div></div></div><div class="card-widget card-announcement"><div class="card-content"><div class="item-headline"><i class="fas fa-bullhorn card-announcement-animation"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="card-content"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%81%9A%E4%BD%9C%E4%B8%9A"><span class="toc-number">1.</span> <span class="toc-text">做作业</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%89%E8%A3%85%E5%8F%8A%E9%85%8D%E7%BD%AE%E8%99%9A%E6%8B%9F%E6%9C%BA"><span class="toc-number">1.1.</span> <span class="toc-text">安装及配置虚拟机</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%89%E8%A3%85centos6"><span class="toc-number">1.1.1.</span> <span class="toc-text">安装centos6</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%85%8D%E7%BD%AE%E8%99%9A%E6%8B%9F%E6%9C%BA"><span class="toc-number">1.1.2.</span> <span class="toc-text">配置虚拟机</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%89%E8%A3%85hadoop%E3%80%81java%EF%BC%8C%E6%90%AD%E5%BB%BA%E4%BC%AA%E5%88%86%E5%B8%83%E5%BC%8F"><span class="toc-number">1.1.3.</span> <span class="toc-text">安装hadoop、java，搭建伪分布式</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%85%8D%E7%BD%AE%E6%9C%AC%E5%9C%B0%E6%A8%A1%E5%BC%8F"><span class="toc-number">1.1.3.1.</span> <span class="toc-text">配置本地模式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%85%8D%E7%BD%AE%E4%BC%AA%E5%88%86%E5%B8%83%E5%BC%8F"><span class="toc-number">1.1.3.2.</span> <span class="toc-text">配置伪分布式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%85%8D%E7%BD%AE%E5%AE%8C%E5%85%A8%E5%88%86%E5%B8%83%E5%BC%8F"><span class="toc-number">1.1.3.3.</span> <span class="toc-text">配置完全分布式</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%85%8D%E7%BD%AEhdfs"><span class="toc-number">1.2.</span> <span class="toc-text">配置hdfs</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#hdfs-hdfs"><span class="toc-number">1.2.0.1.</span> <span class="toc-text">hdfs-hdfs</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9C%AC%E5%9C%B0-gt-hdfs"><span class="toc-number">1.2.0.2.</span> <span class="toc-text">本地-&gt;hdfs</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#hdfs-gt-%E6%9C%AC%E5%9C%B0"><span class="toc-number">1.2.0.3.</span> <span class="toc-text">hdfs-&gt;本地</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#hadoop-API%EF%BC%8C%E5%9C%A8idea%E4%B8%AD%E6%93%8D%E4%BD%9C"><span class="toc-number">1.2.1.</span> <span class="toc-text">hadoop API，在idea中操作</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#mapreduce%E7%BC%96%E7%A8%8B%EF%BC%8C%E5%AF%BC%E5%85%A5jar%E5%8C%85"><span class="toc-number">1.3.</span> <span class="toc-text">mapreduce编程，导入jar包</span></a></li></ol></li></ol></div></div></div><div class="card-widget card-recent-post"><div class="card-content"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2020/12/02/hadoop/" title="hadoop"><img src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/img/default.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="hadoop"/></a><div class="content"><a class="title" href="/2020/12/02/hadoop/" title="hadoop">hadoop</a><time datetime="2020-12-02T02:13:23.000Z" title="发表于 2020-12-02 10:13:23">2020-12-02</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2020/01/07/Cpp%E8%BF%90%E7%AE%97%E7%AC%A6%E9%87%8D%E8%BD%BD/" title="C++运算符重载"><img src="https://gitee.com/yuxiaol/img/raw/master/%E6%89%93%E5%AD%97%E7%9A%84%E8%83%8C%E6%99%AF%E5%9B%BE.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="C++运算符重载"/></a><div class="content"><a class="title" href="/2020/01/07/Cpp%E8%BF%90%E7%AE%97%E7%AC%A6%E9%87%8D%E8%BD%BD/" title="C++运算符重载">C++运算符重载</a><time datetime="2020-01-07T12:48:59.000Z" title="发表于 2020-01-07 20:48:59">2020-01-07</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2019/11/30/%E6%8C%87%E9%92%88%EF%BC%9A%E5%AF%B9%E6%92%9E%E6%8C%87%E9%92%88%E4%B9%8B%E4%BA%8C%E5%88%86%E6%90%9C%E7%B4%A2/" title="指针：对撞指针之二分搜索"><img src="https://gitee.com/yuxiaol/img/raw/master/%E4%BA%8C%E5%88%86%E6%90%9C%E7%B4%A2%E5%B0%81%E9%9D%A2.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="指针：对撞指针之二分搜索"/></a><div class="content"><a class="title" href="/2019/11/30/%E6%8C%87%E9%92%88%EF%BC%9A%E5%AF%B9%E6%92%9E%E6%8C%87%E9%92%88%E4%B9%8B%E4%BA%8C%E5%88%86%E6%90%9C%E7%B4%A2/" title="指针：对撞指针之二分搜索">指针：对撞指针之二分搜索</a><time datetime="2019-11-30T11:26:11.000Z" title="发表于 2019-11-30 19:26:11">2019-11-30</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2018/06/07/start%20of%20blog/" title="start of blog"><img src="https://gitee.com/yuxiaol/img/raw/master/cover1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="start of blog"/></a><div class="content"><a class="title" href="/2018/06/07/start%20of%20blog/" title="start of blog">start of blog</a><time datetime="2018-06-07T14:17:49.000Z" title="发表于 2018-06-07 22:17:49">2018-06-07</time></div></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 By lei</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><div class="js-pjax"><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></div></body></html>

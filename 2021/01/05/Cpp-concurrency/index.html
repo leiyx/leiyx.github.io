@@ -1,0 +1,241 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Cpp_concurrency | 翼展之内 便是天下</title><meta name="keywords" content="并发,C++"><meta name="author" content="lei"><meta name="copyright" content="lei"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><meta name="description" content="线程间共享数据不变量、条件竞争、只有当不变量遭到破坏时才会产生条件竞争；数据竞争； 不变量(invariants)的概念对开发者们编写的程序会有一定的帮助——对于特殊结构体的描述； 条件竞争指多个线程或者进程在读写一个共享数据时结果依赖于它们执行的相对时间的情形； 恶性条件竞争通常发生于完成对多于一个的数据块的修改时；  数据竞争（data race）是指在非线程安全的情况下，多线程对同一个地址">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Cpp_concurrency">
+<meta property="og:url" content="http://leiyx.github.io/2021/01/05/Cpp-concurrency/index.html">
+<meta property="og:site_name" content="翼展之内 便是天下">
+<meta property="og:description" content="线程间共享数据不变量、条件竞争、只有当不变量遭到破坏时才会产生条件竞争；数据竞争； 不变量(invariants)的概念对开发者们编写的程序会有一定的帮助——对于特殊结构体的描述； 条件竞争指多个线程或者进程在读写一个共享数据时结果依赖于它们执行的相对时间的情形； 恶性条件竞争通常发生于完成对多于一个的数据块的修改时；  数据竞争（data race）是指在非线程安全的情况下，多线程对同一个地址">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/img/default.jpg">
+<meta property="article:published_time" content="2021-01-05T09:55:42.000Z">
+<meta property="article:modified_time" content="2021-01-05T14:01:54.864Z">
+<meta property="article:author" content="lei">
+<meta property="article:tag" content="并发">
+<meta property="article:tag" content="C++">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/img/default.jpg"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://leiyx.github.io/2021/01/05/Cpp-concurrency/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  ClickShowText: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    jQuery: 'https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js',
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+    },
+    fancybox: {
+      js: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isanchor: false
+};
+
+var saveToLocal = {
+  set: function setWithExpiry(key, value, ttl) {
+    const now = new Date()
+    const expiryDay = ttl * 86400000
+    const item = {
+      value: value,
+      expiry: now.getTime() + expiryDay,
+    }
+    localStorage.setItem(key, JSON.stringify(item))
+  },
+
+  get: function getWithExpiry(key) {
+    const itemStr = localStorage.getItem(key)
+
+    if (!itemStr) {
+      return undefined
+    }
+    const item = JSON.parse(itemStr)
+    const now = new Date()
+
+    if (now.getTime() > item.expiry) {
+      localStorage.removeItem(key)
+      return undefined
+    }
+    return item.value
+  }
+}
+
+// https://stackoverflow.com/questions/16839698/jquery-getscript-alternative-in-native-javascript
+const getScript = url => new Promise((resolve, reject) => {
+  const script = document.createElement('script')
+  script.src = url
+  script.async = true
+  script.onerror = reject
+  script.onload = script.onreadystatechange = function() {
+    const loadState = this.readyState
+    if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+    script.onload = script.onreadystatechange = null
+    resolve()
+  }
+  document.head.appendChild(script)
+})</script><script id="config_change">var GLOBAL_CONFIG_SITE = { 
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2021-01-05 22:01:54'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(function () {  window.activateDarkMode = function () {
+    document.documentElement.setAttribute('data-theme', 'dark')
+    if (document.querySelector('meta[name="theme-color"]') !== null) {
+      document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+    }
+  }
+  window.activateLightMode = function () {
+    document.documentElement.setAttribute('data-theme', 'light')
+   if (document.querySelector('meta[name="theme-color"]') !== null) {
+      document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+    }
+  }
+  const autoChangeMode = 'false'
+  const t = saveToLocal.get('theme')
+  if (autoChangeMode === '1') {
+    const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
+    const isLightMode = window.matchMedia('(prefers-color-scheme: light)').matches
+    const isNotSpecified = window.matchMedia('(prefers-color-scheme: no-preference)').matches
+    const hasNoSupport = !isDarkMode && !isLightMode && !isNotSpecified
+    if (t === undefined) {
+      if (isLightMode) activateLightMode()
+      else if (isDarkMode) activateDarkMode()
+      else if (isNotSpecified || hasNoSupport) {
+        const now = new Date()
+        const hour = now.getHours()
+        const isNight = hour <= 6 || hour >= 18
+        isNight ? activateDarkMode() : activateLightMode()
+      }
+      window.matchMedia('(prefers-color-scheme: dark)').addListener(function (e) {
+        if (saveToLocal.get('theme') === undefined) {
+          e.matches ? activateDarkMode() : activateLightMode()
+        }
+      })
+    } else if (t === 'light') activateLightMode()
+    else activateDarkMode()
+  } else if (autoChangeMode === '2') {
+    const now = new Date()
+    const hour = now.getHours()
+    const isNight = hour <= 6 || hour >= 18
+    if (t === undefined) isNight ? activateDarkMode() : activateLightMode()
+    else if (t === 'light') activateLightMode()
+    else activateDarkMode()
+  } else {
+    if (t === 'dark') activateDarkMode()
+    else if (t === 'light') activateLightMode()
+  }const asideStatus = saveToLocal.get('aside-status')
+if (asideStatus !== undefined) {
+   if (asideStatus === 'hide') {
+     document.documentElement.classList.add('hide-aside')
+   } else {
+     document.documentElement.classList.remove('hide-aside')
+   }
+}})()</script><meta name="generator" content="Hexo 5.2.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="author-avatar"><img class="avatar-img" src="/null" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data"><div class="data-item is-center"><div class="data-item-link"><a href="/archives/"><div class="headline">文章</div><div class="length-num">11</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/tags/"><div class="headline">标签</div><div class="length-num">16</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/categories/"><div class="headline">分类</div><div class="length-num">8</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div></div></div></div><div id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/img/default.jpg)"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">翼展之内 便是天下</a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Cpp_concurrency</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2021-01-05T09:55:42.000Z" title="发表于 2021-01-05 17:55:42">2021-01-05</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2021-01-05T14:01:54.864Z" title="更新于 2021-01-05 22:01:54">2021-01-05</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/">并发编程</a></span></div><div class="meta-secondline"> <span class="post-meta-separator">|</span><span class="post-meta-pv-cv"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p><img src="https://gitee.com/yuxiaol/img/raw/master/%E7%BA%BF%E7%A8%8B%E6%94%AF%E6%8C%81%E5%BA%93.png" alt="线程支持库内容"></p>
+<h1 id="线程间共享数据"><a href="#线程间共享数据" class="headerlink" title="线程间共享数据"></a>线程间共享数据</h1><p>不变量、条件竞争、只有当不变量遭到破坏时才会产生条件竞争；数据竞争；</p>
+<p>不变量(invariants)的概念对开发者们编写的程序会有一定的帮助——对于特殊结构体的描述；</p>
+<p>条件竞争指多个线程或者进程在读写一个共享数据时结果依赖于它们执行的相对时间的情形；</p>
+<p>恶性条件竞争通常发生于完成对多于一个的数据块的修改时；</p>
+<p> 数据竞争（data race）是指在非线程安全的情况下，多线程对同一个地址空间进行写操作</p>
+<h2 id="使用互斥量保护共享数据"><a href="#使用互斥量保护共享数据" class="headerlink" title="使用互斥量保护共享数据"></a>使用互斥量保护共享数据</h2><p>std::mutex是一个普通的类，实例化产物为互斥量，不可复制也不可移动，锁定成员函数有三个，分别是锁定互斥、尝试锁定互斥、解锁互斥；</p>
+<ul>
+<li>lock()</li>
+<li>try_lock()</li>
+<li>unlock()</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;chrono&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;thread&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;mutex&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> g_num = <span class="number">0</span>;  <span class="comment">// 为 g_num_mutex 所保护</span></span><br><span class="line"><span class="built_in">std</span>::mutex g_num_mutex;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">slow_increment</span><span class="params">(<span class="keyword">int</span> id)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">3</span>; ++i) &#123;</span><br><span class="line">        g_num_mutex.lock();</span><br><span class="line">        ++g_num;</span><br><span class="line">        <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; id &lt;&lt; <span class="string">&quot; =&gt; &quot;</span> &lt;&lt; g_num &lt;&lt; <span class="string">&#x27;\n&#x27;</span>;</span><br><span class="line">        g_num_mutex.unlock();</span><br><span class="line"></span><br><span class="line">        <span class="built_in">std</span>::this_thread::sleep_for(<span class="built_in">std</span>::chrono::seconds(<span class="number">1</span>));<span class="comment">//线程休眠一秒</span></span><br><span class="line">        <span class="comment">//this_thread是std下的一个命名空间，</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="function"><span class="built_in">std</span>::thread <span class="title">t1</span><span class="params">(slow_increment, <span class="number">0</span>)</span></span>;</span><br><span class="line">    <span class="function"><span class="built_in">std</span>::thread <span class="title">t2</span><span class="params">(slow_increment, <span class="number">1</span>)</span></span>;</span><br><span class="line">    t1.join();</span><br><span class="line">    t2.join();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://gitee.com/yuxiaol/img/raw/master/sleep_for%E5%AE%9A%E4%B9%89.png" alt="sleep_for和this_thread定义"></p>
+<p>然而通常不直接使用 <code>std::mutex</code> ，而是使用 std::unique_lock 、 std::lock_guard或 std::scoped_lock  (C++17 起)以更加异常安全的方式管理锁定。</p>
+<p>std::lock_guard,是一个模板类的全特化（也是一个模板），其模板形参为要锁定的互斥，类lock_guard是互斥体包装器，具有RAII机制，该类不可复制；</p>
+<p>std::lock_guard使用</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;thread&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;mutex&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> g_i = <span class="number">0</span>;</span><br><span class="line"><span class="built_in">std</span>::mutex g_i_mutex;  <span class="comment">// 保护 g_i</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">safe_increment</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">//int n = 5;</span></span><br><span class="line">    <span class="keyword">int</span> n=<span class="number">1000</span>;</span><br><span class="line">    <span class="function"><span class="built_in">std</span>::lock_guard&lt;<span class="built_in">std</span>::mutex&gt; <span class="title">lock</span><span class="params">(g_i_mutex)</span></span>;</span><br><span class="line">    <span class="keyword">while</span>(n--)</span><br><span class="line">        ++g_i;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="built_in">std</span>::this_thread::get_id() &lt;&lt; <span class="string">&quot;: &quot;</span> &lt;&lt; g_i &lt;&lt; <span class="string">&#x27;\n&#x27;</span>;</span><br><span class="line">    <span class="comment">// g_i_mutex 在锁离开作用域时自动释放</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;main: &quot;</span> &lt;&lt; g_i &lt;&lt; <span class="string">&#x27;\n&#x27;</span>;</span><br><span class="line">    <span class="function"><span class="built_in">std</span>::thread <span class="title">t1</span><span class="params">(safe_increment)</span></span>;</span><br><span class="line">    <span class="function"><span class="built_in">std</span>::thread <span class="title">t2</span><span class="params">(safe_increment)</span></span>;</span><br><span class="line">    t1.join();</span><br><span class="line">    t2.join();</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;main: &quot;</span> &lt;&lt; g_i &lt;&lt; <span class="string">&#x27;\n&#x27;</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//写std::lock_guard&lt;&gt; lock(mutex实例);会报错因为全特化中的类型需要你自己指定，见下</span></span><br><span class="line"><span class="comment">/*下面为vs2019中mutex头文件关于lock_guard的前面一小部分定义</span></span><br><span class="line"><span class="comment">// CLASS TEMPLATE lock_guard</span></span><br><span class="line"><span class="comment">template &lt;class _Mutex&gt;</span></span><br><span class="line"><span class="comment">class lock_guard &#123; // class with destructor that unlocks a mutex</span></span><br><span class="line"><span class="comment">public:</span></span><br><span class="line"><span class="comment">    using mutex_type = _Mutex;//注意******************************</span></span><br><span class="line"><span class="comment">    ......*/</span></span><br></pre></td></tr></table></figure>
+
+<p>该程序中的lock为一个包装了互斥量的对象，初始化即对该互斥量保护的数据上锁，离开其作用域时调用析构函数即自动释放锁；RAII风格，真不错；</p>
+<p>std::lock ——可以一次性锁住多个(两个以上)的互斥量，并且没有副作用 (死锁风险)，std::lock_guard只能接受一个互斥量；而scoped_lock能接受多个互斥量；</p>
+<p>std::scoped_lock&lt;&gt; 一种新的RAII类型模板类型，与 std::lock_guard&lt;&gt; 的功能等 价，这个新类型能接受不定数量的互斥量类型作为模板参数，以及相应的互斥量(数量和类型)作为构造参数。互斥量 支持构造即上锁，与std::lock 的用法相同，其解锁阶段是在析构中进行。 （std::scoped_lock ，因为其是C++17标准库中的一个工具)，C++17可以通过隐式参数模板类型推导机制， 通过 传递的对形象类型来构造实例</p>
+<p>即下面两行代码等价</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">std::scoped_lock&lt;std::mutex,std::mutex&gt; guard(lhs.m,rhs.m);</span><br><span class="line"><span class="function"><span class="built_in">std</span>::scoped_lock <span class="title">guard</span><span class="params">(lhs.m,rhs.m)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p>adopt_lock\unique_lock\defer_lock是什么？？？？</p>
+<p>未完待续？？</p>
+<h1 id="同步并发操作"><a href="#同步并发操作" class="headerlink" title="同步并发操作"></a>同步并发操作</h1><h2 id="等待一个事件或其他条件"><a href="#等待一个事件或其他条件" class="headerlink" title="等待一个事件或其他条件"></a>等待一个事件或其他条件</h2><p>例子：坐火车</p>
+<ul>
+<li>持续检测；一直问到站了没有</li>
+<li>设置休眠时间，间歇检测 ；每隔一会去问一下到站了没有</li>
+<li>使用条件变量；叫别人叫醒你</li>
+</ul>
+<p>使用C++标准库提供的工具去等待事件的发生。通过另一线程触发等待事件的机制 是最基本的唤醒方式(例如：流水线上存在额外的任务时)，这种机制就称为“<strong>条件变量</strong>”；</p>
+<p><code>condition_variable</code>（普通类） 类是同步原语，能用于阻塞一个线程，或同时阻塞多个线程，直至另一线程修改共享变量（<em>条件</em>）并通知 <code>condition_variable</code> 。</p>
+<p>condition_variable(_any)的成员函数</p>
+<ul>
+<li>构造与析构</li>
+<li>通知: notify_one\notify_all</li>
+<li>等待：wait\wait_for\wait_until</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;thread&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;mutex&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;condition_variable&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="built_in">std</span>::mutex m;</span><br><span class="line"><span class="built_in">std</span>::condition_variable cv;</span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">string</span> data;</span><br><span class="line"><span class="keyword">bool</span> ready = <span class="literal">false</span>;</span><br><span class="line"><span class="keyword">bool</span> processed = <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">worker_thread</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">// 等待直至 main() 发送数据</span></span><br><span class="line">    <span class="function"><span class="built_in">std</span>::unique_lock&lt;<span class="built_in">std</span>::mutex&gt; <span class="title">lk</span><span class="params">(m)</span></span>;</span><br><span class="line">    cv.wait(lk, [] &#123;<span class="keyword">return</span> ready; &#125;);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 等待后，我们占有锁。</span></span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;Worker thread is processing data\n&quot;</span>;</span><br><span class="line">    data += <span class="string">&quot; after processing&quot;</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 发送数据回 main()</span></span><br><span class="line">    processed = <span class="literal">true</span>;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;Worker thread signals data processing completed\n&quot;</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 通知前完成手动解锁，以避免等待线程才被唤醒就阻塞（细节见 notify_one ）</span></span><br><span class="line">    lk.unlock();</span><br><span class="line">    cv.notify_one();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="function"><span class="built_in">std</span>::thread <span class="title">worker</span><span class="params">(worker_thread)</span></span>;</span><br><span class="line"></span><br><span class="line">    data = <span class="string">&quot;Example data&quot;</span>;</span><br><span class="line">    <span class="comment">// 发送数据到 worker 线程</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="function"><span class="built_in">std</span>::lock_guard&lt;<span class="built_in">std</span>::mutex&gt; <span class="title">lk</span><span class="params">(m)</span></span>;</span><br><span class="line">        ready = <span class="literal">true</span>;</span><br><span class="line">        <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;main() signals data ready for processing\n&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    cv.notify_one();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 等候 worker</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="function"><span class="built_in">std</span>::unique_lock&lt;<span class="built_in">std</span>::mutex&gt; <span class="title">lk</span><span class="params">(m)</span></span>;</span><br><span class="line">        cv.wait(lk, [] &#123;<span class="keyword">return</span> processed; &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;Back in main(), data = &quot;</span> &lt;&lt; data &lt;&lt; <span class="string">&#x27;\n&#x27;</span>;</span><br><span class="line"></span><br><span class="line">    worker.join();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="利用期望值等待一次性条件"><a href="#利用期望值等待一次性条件" class="headerlink" title="利用期望值等待一次性条件"></a>利用期望值等待一次性条件</h2><p>例子：等飞机</p>
+<p>std::future,一个类模板，可偏特化；</p>
+<p>成员函数：</p>
+<ul>
+<li><p>析构与构造、=移动future对象</p>
+</li>
+<li><p>获取结果get,返回值为存储于共享状态的值v,其引用，空；要根据你future模板参数而定；move方式给局部对象再返回，调用父类State_manager的get_value，才是返回该类模板参数类型的一个值，即存储共享状态的值v；该值存在哪儿？//注意看头文件源码</p>
+</li>
+<li><p>状态：valid、wait、wait_for、wait_until；wait()，阻塞直至结果变得可用。调用后 valid() == true 。</p>
+<p>若调用此函数前 <a target="_blank" rel="noopener" href="https://zh.cppreference.com/w/cpp/thread/future/valid"><code>valid</code></a>() == false 则行为未定义。参数及返回值无；</p>
+</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;future&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;thread&gt;</span></span></span><br><span class="line"><span class="comment">//三种异步操作，均返回一个future对象；</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">// 来自 packaged_task 的 future</span></span><br><span class="line">    <span class="function"><span class="built_in">std</span>::packaged_task&lt;<span class="title">int</span><span class="params">()</span>&gt; <span class="title">task</span><span class="params">([]() &#123; <span class="keyword">return</span> <span class="number">7</span>; &#125;)</span></span>; <span class="comment">// 包装函数</span></span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">future</span>&lt;<span class="keyword">int</span>&gt; f1 = task.get_future();  <span class="comment">// 获取 future</span></span><br><span class="line">    <span class="built_in">std</span>::thread(<span class="built_in">std</span>::move(task)).detach(); <span class="comment">// 在线程上运行</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 来自 async() 的 future</span></span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">future</span>&lt;<span class="keyword">int</span>&gt; f2 = <span class="built_in">std</span>::async(<span class="built_in">std</span>::launch::async, []() &#123; <span class="keyword">return</span> <span class="number">8</span>; &#125;);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 来自 promise 的 future</span></span><br><span class="line">    <span class="built_in">std</span>::promise&lt;<span class="keyword">int</span>&gt; p;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">future</span>&lt;<span class="keyword">int</span>&gt; f3 = p.get_future();</span><br><span class="line">    <span class="built_in">std</span>::thread([&amp;p] &#123; p.set_value_at_thread_exit(<span class="number">9</span>); &#125;).detach();</span><br><span class="line"></span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;Waiting...&quot;</span> &lt;&lt; <span class="built_in">std</span>::flush;</span><br><span class="line">    f1.wait();</span><br><span class="line">    f2.wait();</span><br><span class="line">    f3.wait();</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;Done!\nResults are: &quot;</span></span><br><span class="line">        &lt;&lt; f1.get() &lt;&lt; <span class="string">&#x27; &#x27;</span> &lt;&lt; f2.get() &lt;&lt; <span class="string">&#x27; &#x27;</span> &lt;&lt; f3.get() &lt;&lt; <span class="string">&#x27;\n&#x27;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>一个<strong>std::future</strong>对象在内部存储一个将来会被赋值的值，并提供了一个访问该值的机制，通过get()成员函数实现。但如果有人视图在get()函数可用之前通过它来访问相关的值，那么get()函数将会阻塞，直到该值可用；</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">_Ty <span class="title">get</span><span class="params">()</span> </span>&#123;<span class="comment">//若模板类型参数为int，则这里返回类型_Ty为int</span></span><br><span class="line">       <span class="comment">// block until ready then return the stored result or throw the stored exception</span></span><br><span class="line">       future _Local&#123;_STD move(*this)&#125;;</span><br><span class="line">       <span class="keyword">return</span> _STD move(_Local._Get_value());</span><br></pre></td></tr></table></figure>
+
+
+
+<p>三种异步操作</p>
+<ul>
+<li>std::async</li>
+<li>std::packaged_task</li>
+<li>std::promise</li>
+</ul>
+<p>未完待续？？？？？</p>
+<p>期望值与条件变量的区别联系？？？</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">lei</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://leiyx.github.io/2021/01/05/Cpp-concurrency/">http://leiyx.github.io/2021/01/05/Cpp-concurrency/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://leiyx.github.io" target="_blank">翼展之内 便是天下</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E5%B9%B6%E5%8F%91/">并发</a><a class="post-meta__tags" href="/tags/C/">C++</a></div><div class="post_share"><div class="social-share" data-image="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/img/default.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/2020/12/25/Cpp%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%9F%BA%E7%A1%80/"><img class="next-cover" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/img/default.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">Cpp多线程基础</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span> 相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2020/12/07/Cpp之IO库/" title="C++之IO库"><img class="cover" src="https://gitee.com/yuxiaol/img/raw/master/WS0126055414.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-12-07</div><div class="title">C++之IO库</div></div></a></div><div><a href="/2020/12/25/Cpp之可调用对象/" title="Cpp之可调用对象"><img class="cover" src="https://gitee.com/yuxiaol/img/raw/master/WS0114705379.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-12-25</div><div class="title">Cpp之可调用对象</div></div></a></div><div><a href="/2020/12/09/Cpp之模板基础/" title="Cpp之模板基础"><img class="cover" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/img/default.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-12-09</div><div class="title">Cpp之模板基础</div></div></a></div><div><a href="/2020/12/25/Cpp多线程基础/" title="Cpp多线程基础"><img class="cover" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/img/default.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-12-25</div><div class="title">Cpp多线程基础</div></div></a></div><div><a href="/2020/12/24/Cpp之随机数/" title="Cpp之随机数"><img class="cover" src="https://gitee.com/yuxiaol/img/raw/master/0OqkInkoBH.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-12-24</div><div class="title">Cpp之随机数</div></div></a></div><div><a href="/2020/01/07/Cpp运算符重载/" title="C++运算符重载"><img class="cover" src="https://gitee.com/yuxiaol/img/raw/master/%E6%89%93%E5%AD%97%E7%9A%84%E8%83%8C%E6%99%AF%E5%9B%BE.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-01-07</div><div class="title">C++运算符重载</div></div></a></div></div></div></div><div class="aside_content" id="aside_content"><div class="card-widget card-info"><div class="card-content"><div class="card-info-avatar is-center"><img class="avatar-img" src="/null" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/><div class="author-info__name">lei</div><div class="author-info__description">与其感慨路难行，不如马上出发</div></div><div class="card-info-data"><div class="card-info-data-item is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">11</div></a></div><div class="card-info-data-item is-center"><a href="/tags/"><div class="headline">标签</div><div class="length-num">16</div></a></div><div class="card-info-data-item is-center"><a href="/categories/"><div class="headline">分类</div><div class="length-num">8</div></a></div></div><a class="button--animated" id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="/770567756@qq.com" target="_blank" title="Email"><i class="fas fa-envelope"></i></a></div></div></div><div class="card-widget card-announcement"><div class="card-content"><div class="item-headline"><i class="fas fa-bullhorn card-announcement-animation"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="card-content"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%BA%BF%E7%A8%8B%E9%97%B4%E5%85%B1%E4%BA%AB%E6%95%B0%E6%8D%AE"><span class="toc-number">1.</span> <span class="toc-text">线程间共享数据</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8%E4%BA%92%E6%96%A5%E9%87%8F%E4%BF%9D%E6%8A%A4%E5%85%B1%E4%BA%AB%E6%95%B0%E6%8D%AE"><span class="toc-number">1.1.</span> <span class="toc-text">使用互斥量保护共享数据</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%90%8C%E6%AD%A5%E5%B9%B6%E5%8F%91%E6%93%8D%E4%BD%9C"><span class="toc-number">2.</span> <span class="toc-text">同步并发操作</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AD%89%E5%BE%85%E4%B8%80%E4%B8%AA%E4%BA%8B%E4%BB%B6%E6%88%96%E5%85%B6%E4%BB%96%E6%9D%A1%E4%BB%B6"><span class="toc-number">2.1.</span> <span class="toc-text">等待一个事件或其他条件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%A9%E7%94%A8%E6%9C%9F%E6%9C%9B%E5%80%BC%E7%AD%89%E5%BE%85%E4%B8%80%E6%AC%A1%E6%80%A7%E6%9D%A1%E4%BB%B6"><span class="toc-number">2.2.</span> <span class="toc-text">利用期望值等待一次性条件</span></a></li></ol></li></ol></div></div></div><div class="card-widget card-recent-post"><div class="card-content"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2021/01/05/Cpp-concurrency/" title="Cpp_concurrency"><img src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/img/default.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Cpp_concurrency"/></a><div class="content"><a class="title" href="/2021/01/05/Cpp-concurrency/" title="Cpp_concurrency">Cpp_concurrency</a><time datetime="2021-01-05T09:55:42.000Z" title="发表于 2021-01-05 17:55:42">2021-01-05</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2020/12/25/Cpp%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%9F%BA%E7%A1%80/" title="Cpp多线程基础"><img src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/img/default.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Cpp多线程基础"/></a><div class="content"><a class="title" href="/2020/12/25/Cpp%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%9F%BA%E7%A1%80/" title="Cpp多线程基础">Cpp多线程基础</a><time datetime="2020-12-25T08:02:38.000Z" title="发表于 2020-12-25 16:02:38">2020-12-25</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2020/12/25/Cpp%E4%B9%8B%E5%8F%AF%E8%B0%83%E7%94%A8%E5%AF%B9%E8%B1%A1/" title="Cpp之可调用对象"><img src="https://gitee.com/yuxiaol/img/raw/master/WS0114705379.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Cpp之可调用对象"/></a><div class="content"><a class="title" href="/2020/12/25/Cpp%E4%B9%8B%E5%8F%AF%E8%B0%83%E7%94%A8%E5%AF%B9%E8%B1%A1/" title="Cpp之可调用对象">Cpp之可调用对象</a><time datetime="2020-12-25T01:59:20.000Z" title="发表于 2020-12-25 09:59:20">2020-12-25</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2020/12/24/Cpp%E4%B9%8B%E9%9A%8F%E6%9C%BA%E6%95%B0/" title="Cpp之随机数"><img src="https://gitee.com/yuxiaol/img/raw/master/0OqkInkoBH.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Cpp之随机数"/></a><div class="content"><a class="title" href="/2020/12/24/Cpp%E4%B9%8B%E9%9A%8F%E6%9C%BA%E6%95%B0/" title="Cpp之随机数">Cpp之随机数</a><time datetime="2020-12-24T12:37:15.000Z" title="发表于 2020-12-24 20:37:15">2020-12-24</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2020/12/09/Cpp%E4%B9%8B%E6%A8%A1%E6%9D%BF%E5%9F%BA%E7%A1%80/" title="Cpp之模板基础"><img src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/img/default.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Cpp之模板基础"/></a><div class="content"><a class="title" href="/2020/12/09/Cpp%E4%B9%8B%E6%A8%A1%E6%9D%BF%E5%9F%BA%E7%A1%80/" title="Cpp之模板基础">Cpp之模板基础</a><time datetime="2020-12-09T08:40:38.000Z" title="发表于 2020-12-09 16:40:38">2020-12-09</time></div></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2021 By lei</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><div class="js-pjax"><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></div></body></html>
